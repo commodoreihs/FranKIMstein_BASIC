@@ -1,0 +1,170 @@
+; === CODE11 ===
+        CMP (DSCTMP+1),y
+        BEQ NXTCMP
+        LDX #$FF
+        BCS DOCMP
+        LDX #1
+DOCMP        INX
+        TXA
+        ROL A
+        AND DOMASK
+        BEQ GOFLOT
+        LDA #$FF
+GOFLOT        JMP FLOAT
+DIM3        JSR CHKCOM
+DIM        TAX
+        JSR PTRGT1
+        JSR CHRGOT
+        BNE DIM3
+        RTS
+PTRGET        LDX #0
+        JSR CHRGOT
+PTRGT1        STX DIMFLG
+PTRGT2        STA VARNAM
+        JSR CHRGOT
+        JSR ISLETC
+        BCS PTRGT3
+INTERR        JMP SNERR
+PTRGT3        LDX #0
+        STX VALTYP
+        STX INTFLG
+        JSR CHRGET
+        BCC ISSEC
+        JSR ISLETC
+        BCC NOSEC
+ISSEC        TAX
+EATEM        JSR CHRGET
+        BCC EATEM
+        JSR ISLETC
+        BCS EATEM
+NOSEC        CMP #'$'
+        BNE NOTSTR
+        LDA #$FF
+        STA VALTYP
+        BNE TURNON
+NOTSTR        CMP #'%'
+        BNE STRNAM
+        LDA SUBFLG
+        BNE INTERR
+        LDA #128
+        STA INTFLG
+        ORA VARNAM
+        STA VARNAM
+TURNON        TXA
+        ORA #128
+        TAX
+        JSR CHRGET
+STRNAM        STX VARNAM+1
+        SEC
+        ORA SUBFLG
+        SBC #40
+        BNE *+5
+        JMP ISARY
+        LDY #0
+        STY SUBFLG
+        LDA VARTAB
+        LDX VARTAB+1
+STXFND        STX LOWTR+1
+LOPFND        STA LOWTR
+        CPX ARYTAB+1
+        BNE LOPFN
+        CMP ARYTAB
+        BEQ NOTFNS
+LOPFN        LDA VARNAM
+        CMP (LOWTR),y
+        BNE NOTIT
+        LDA VARNAM+1
+        INY
+        CMP (LOWTR),y
+        BEQ FINPTR
+        DEY
+NOTIT        CLC
+        LDA LOWTR
+        ADC #6+ADDPRC
+        BCC LOPFND
+        INX
+        BNE STXFND
+ISLETC        CMP #'A'
+        BCC ISLRTS
+        SBC #$5B
+        SEC
+        SBC #$A5
+ISLRTS        RTS
+NOTFNS        PLA
+        PHA
+ZZ6=ISVRET-1
+        CMP #<ZZ6 
+        BNE NOTEVL
+LDZR        LDA #<ZERO
+        LDY #>ZERO
+        RTS
+NOTEVL        LDA VARNAM
+        LDY VARNAM+1
+        CMP #'T'
+        BNE QSTAVR
+        CPY #$C9
+        BEQ LDZR
+        CPY #$49
+        BNE QSTAVR
+GOBADV        JMP SNERR
+QSTAVR
+        CMP #'S'
+        BNE VAROK
+        CPY #'T'
+        BEQ GOBADV
+VAROK        LDA ARYTAB
+        LDY ARYTAB+1
+        STA LOWTR
+        STY LOWTR+1
+        LDA STREND
+        LDY STREND+1
+        STA HIGHTR
+        STY HIGHTR+1
+        CLC
+        ADC #6+ADDPRC
+        BCC NOTEVE
+        INY
+NOTEVE        STA HIGHDS
+        STY HIGHDS+1
+        JSR BLTU
+        LDA HIGHDS
+        LDY HIGHDS+1
+        INY
+        STA ARYTAB
+        STY ARYTAB+1
+        LDY #0
+        LDA VARNAM
+        STA (LOWTR),y
+        INY
+        LDA VARNAM+1
+        STA (LOWTR),y
+        LDA #0
+        INY
+        STA (LOWTR),y
+        INY
+        STA (LOWTR),y
+        INY
+        STA (LOWTR),y
+        INY
+        STA (LOWTR),y
+        INY
+        STA (LOWTR),y
+FINPTR        LDA LOWTR
+        CLC
+        ADC #2
+        LDY LOWTR+1
+        BCC FINNOW
+        INY
+FINNOW        STA VARPNT
+        STY VARPNT+1
+        RTS
+FMAPTR        LDA COUNT
+        ASL A
+        ADC #5
+        ADC LOWTR
+        LDY LOWTR+1
+        BCC JSRGM
+        INY
+JSRGM        STA ARYPNT
+        STY ARYPNT+1
+        RTS

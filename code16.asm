@@ -1,0 +1,163 @@
+; === CODE16 ===
+        LDA (STRNG1),y
+        TAX
+        INY
+        LDA (STRNG1),y
+        TAY
+        PLA
+MOVSTR        STX INDEX
+        STY INDEX+1
+MOVDO        TAY
+        BEQ MVDONE
+        PHA
+MOVLP        DEY
+        LDA (INDEX),y
+        STA (FRESPC),y
+        TYA
+        BNE MOVLP
+        PLA
+MVDONE        CLC
+        ADC FRESPC
+        STA FRESPC
+        BCC MVSTRT
+        INC FRESPC+1
+MVSTRT        RTS
+FRESTR        JSR CHKSTR
+FREFAC        LDA FACMO
+        LDY FACMO+1
+FRETMP        STA INDEX
+        STY INDEX+1
+        JSR FRETMS
+        PHP
+        LDY #0
+        LDA (INDEX),y
+        PHA
+        INY
+        LDA (INDEX),y
+        TAX
+        INY
+        LDA (INDEX),y
+        TAY
+        PLA
+        PLP
+        BNE FRETRT
+        CPY FRETOP+1
+        BNE FRETRT
+        CPX FRETOP
+        BNE FRETRT
+        PHA
+        CLC
+        ADC FRETOP
+        STA FRETOP
+        BCC FREPLA
+        INC FRETOP+1
+FREPLA        PLA
+FRETRT        STX INDEX
+        STY INDEX+1
+        RTS
+FRETMS        CPY LASTPT+1
+        BNE FRERTS
+        CMP LASTPT
+        BNE FRERTS
+        STA TEMPPT
+        SBC #STRSIZ
+        STA LASTPT
+        LDY #0
+FRERTS        RTS
+CHRD        JSR CONINT
+        TXA
+        PHA
+        LDA #1
+        JSR STRSPA
+        PLA
+        LDY #0
+        STA (DSCTMP+1),y
+        PLA
+        PLA
+        JMP PUTNEW
+LEFTD        JSR PREAM
+        CMP (DSCPNT),y
+        TYA
+RLEFT        BCC RLEFT1
+        LDA (DSCPNT),y
+        TAX
+        TYA
+RLEFT1        PHA
+RLEFT2        TXA
+RLEFT3        PHA
+        JSR STRSPA
+        LDA DSCPNT
+        LDY DSCPNT+1
+        JSR FRETMP
+        PLA
+        TAY
+        PLA
+        CLC
+        ADC INDEX
+        STA INDEX
+        BCC PULMOR
+        INC INDEX+1
+PULMOR        TYA
+        JSR MOVDO
+        JMP PUTNEW
+RIGHTD        JSR PREAM
+        CLC
+        SBC (DSCPNT),y
+        EOR #255
+        JMP RLEFT
+MIDD        LDA #255
+        STA FACLO
+        JSR CHRGOT
+        CMP #41
+        BEQ MID2
+        JSR CHKCOM
+        JSR GETBYT
+MID2        JSR PREAM
+        BEQ GOFUC
+        DEX
+        TXA
+        PHA
+        CLC
+        LDX #0
+        SBC (DSCPNT),y
+        BCS RLEFT2
+        EOR #255
+        CMP FACLO
+        BCC RLEFT3
+        LDA FACLO
+        BCS RLEFT3
+PREAM        JSR CHKCLS
+        PLA
+        TAY
+        PLA
+        STA JMPER+1
+        PLA
+        PLA
+        PLA
+        TAX
+        PLA
+        STA DSCPNT
+        PLA
+        STA DSCPNT+1
+        LDA JMPER+1
+        PHA
+        TYA
+        PHA
+        LDY #0
+        TXA
+        RTS
+LEN        JSR LEN1
+        JMP SNGFLT
+LEN1        JSR FRESTR
+        LDX #0
+        STX VALTYP
+        TAY
+        RTS
+ASC        JSR LEN1
+        BEQ GOFUC
+        LDY #0
+        LDA (INDEX1),y
+        TAY
+        JMP SNGFLT
+GOFUC        JMP FCERR
+GTBYTC        JSR CHRGET
