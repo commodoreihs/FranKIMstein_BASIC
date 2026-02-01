@@ -4,7 +4,7 @@ Commodore BASIC for FranKIMstein — a Commodore 1541 disk drive converted into 
 
 ## What is this?
 
-This is a port of Commodore BASIC to run on a modified 1541 disk drive. Combined with the [FranKIMstein Kernal](https://github.com/davevw/FranKIMstein_kernal), it provides:
+This is a port of Commodore BASIC to run on a modified 1541 disk drive. Combined with the [FranKIMstein Kernal](https://github.com/commodoreihs/FranKIMstein_kernal), it provides:
 
 - Full Commodore BASIC interpreter
 - Disk operations: `LOAD`, `SAVE`, `FMT` (format)
